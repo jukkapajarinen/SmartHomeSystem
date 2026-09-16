@@ -3,170 +3,103 @@
 @section('title', 'Cameras')
 
 @section('content')
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div class="bg-neutral-900 shadow-sm ring-1 ring-gray-900 ring-opacity-5 rounded-xl overflow-hidden">
-            <div class="relative flex items-center justify-center min-h-[16rem] p-2">
-                <button id="stream-start" type="button" class="absolute inset-0 flex flex-col items-center justify-center gap-2 text-gray-300 hover:text-white transition-colors">
-                    <svg class="w-12 h-12" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
-                    </svg>
-                    <span class="text-sm">Click to start camera feed</span>
-                </button>
-                <div id="stream-status" class="absolute inset-0 hidden items-center justify-center text-gray-400 text-sm">
-                    Connecting to camera&hellip;
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+
+            @if (session('success'))
+                <div class="p-4 text-sm text-green-700 bg-green-100 border border-green-300 rounded-lg">
+                    {{ session('success') }}
                 </div>
-                <video id="stream" class="block w-full max-h-[75vh] rounded-lg" muted playsinline controls></video>
+            @endif
+
+            @if ($errors->any())
+                <div class="p-4 text-sm text-red-700 bg-red-100 border border-red-300 rounded-lg">
+                    <ul class="list-disc list-inside">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <div class="bg-gray-100 rounded-xl shadow-sm ring-1 ring-gray-300 overflow-hidden">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead>
+                        <tr class="bg-gray-800">
+                            <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Order</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Name</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Stream URL</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Max Width</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Quality</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-white uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        @forelse($cameras as $camera)
+                            <tr>
+                                <td class="px-6 py-3 text-sm">
+                                    <div class="flex items-center gap-1.5">
+                                        <form method="POST" action="{{ route('cameras.move-up', $camera) }}">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" class="flex items-center justify-center w-8 h-8 rounded-md border border-gray-300 bg-white text-gray-600 text-base font-bold hover:bg-gray-100 hover:border-gray-400 hover:text-gray-900 active:bg-gray-200 disabled:opacity-30 disabled:hover:bg-white disabled:hover:border-gray-300 disabled:hover:text-gray-600 disabled:cursor-not-allowed" @if ($loop->first) disabled @endif title="Move up">&uarr;</button>
+                                        </form>
+                                        <form method="POST" action="{{ route('cameras.move-down', $camera) }}">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" class="flex items-center justify-center w-8 h-8 rounded-md border border-gray-300 bg-white text-gray-600 text-base font-bold hover:bg-gray-100 hover:border-gray-400 hover:text-gray-900 active:bg-gray-200 disabled:opacity-30 disabled:hover:bg-white disabled:hover:border-gray-300 disabled:hover:text-gray-600 disabled:cursor-not-allowed" @if ($loop->last) disabled @endif title="Move down">&darr;</button>
+                                        </form>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-3 text-sm font-medium text-gray-900">
+                                    <input type="text" name="name" form="camera-update-{{ $camera->id }}" value="{{ $camera->name }}" class="block w-full appearance-none border border-gray-300 focus:border-indigo-500 bg-transparent hover:bg-white px-2 py-1 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md">
+                                </td>
+                                <td class="px-6 py-3 text-sm text-gray-500">
+                                    <input type="text" name="stream_url" form="camera-update-{{ $camera->id }}" value="{{ $camera->stream_url }}" class="block w-full min-w-[16rem] appearance-none border border-gray-300 focus:border-indigo-500 bg-transparent hover:bg-white px-2 py-1 text-sm text-gray-500 font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md">
+                                </td>
+                                <td class="px-6 py-3 text-sm text-gray-500">
+                                    <input type="number" name="max_width" form="camera-update-{{ $camera->id }}" value="{{ $camera->max_width }}" min="1" class="block w-24 appearance-none border border-gray-300 focus:border-indigo-500 bg-transparent hover:bg-white px-2 py-1 text-sm text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md">
+                                </td>
+                                <td class="px-6 py-3 text-sm text-gray-500">
+                                    <input type="number" name="quality" form="camera-update-{{ $camera->id }}" value="{{ $camera->quality }}" min="2" max="31" class="block w-20 appearance-none border border-gray-300 focus:border-indigo-500 bg-transparent hover:bg-white px-2 py-1 text-sm text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md">
+                                </td>
+                                <td class="px-6 py-3 text-sm text-right space-x-3 whitespace-nowrap">
+                                    <button type="submit" form="camera-update-{{ $camera->id }}" class="font-medium text-indigo-600 hover:text-indigo-800">Save</button>
+                                    <form method="POST" action="{{ route('cameras.destroy', $camera) }}" class="inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="font-medium text-red-600 hover:text-red-800">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="px-6 py-8 text-center text-sm text-gray-500">No cameras found.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
+
+            <div class="bg-gray-100 rounded-xl shadow-sm ring-1 ring-gray-300 p-4">
+                <form method="POST" action="{{ route('cameras.store') }}" class="flex flex-wrap items-center gap-3">
+                    @csrf
+                    <input type="text" name="name" placeholder="Name" class="block flex-1 min-w-[10rem] appearance-none border border-gray-400 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 rounded-md shadow-sm" value="{{ old('name') }}" required>
+                    <input type="text" name="stream_url" placeholder="Stream URL" class="block flex-1 min-w-[16rem] appearance-none border border-gray-400 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 rounded-md shadow-sm font-mono" value="{{ old('stream_url') }}" required>
+                    <input type="number" name="max_width" placeholder="Max Width" min="1" class="block w-28 appearance-none border border-gray-400 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 rounded-md shadow-sm" value="{{ old('max_width', 960) }}" required>
+                    <input type="number" name="quality" placeholder="Quality" min="2" max="31" class="block w-24 appearance-none border border-gray-400 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 rounded-md shadow-sm" value="{{ old('quality', 5) }}" required>
+                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 whitespace-nowrap">
+                        {{ __('Add Camera') }}
+                    </button>
+                </form>
+            </div>
+
+            @foreach ($cameras as $camera)
+                <form id="camera-update-{{ $camera->id }}" method="POST" action="{{ route('cameras.update', $camera) }}" class="hidden">
+                    @csrf
+                    @method('PATCH')
+                </form>
+            @endforeach
         </div>
     </div>
-
-    <script>
-        // The feed is a never-ending response (ffmpeg keeps writing frames until
-        // the page is left). Pointing the <video>'s src straight at it makes the
-        // browser track that open-ended network request as part of the page's
-        // own loading state, so the tab's loading spinner never stops for as
-        // long as the stream plays.
-        //
-        // Instead, the stream is fetched manually and fed into a MediaSource via
-        // the Media Source Extensions API. The <video> element then only ever
-        // points at a local blob URL, so its network activity is invisible to
-        // the browser's page-loading bookkeeping. This relies on the feed being
-        // fragmented MP4 with a fixed H.264 profile/level (see
-        // CameraController::feed()), which is exactly what MSE expects.
-        //
-        // ffmpeg is spawned server-side per request, so the stream is also only
-        // started once the visitor clicks play, rather than on every page load.
-        const startButton = document.getElementById('stream-start');
-        const stream = document.getElementById('stream');
-        const status = document.getElementById('stream-status');
-        const feedUrl = '{{ route('cameras.feed') }}';
-        const mimeCodec = 'video/mp4; codecs="avc1.42E028"';
-
-        // Live feed can be left open for hours; cap how much decoded video MSE
-        // is allowed to keep buffered so memory use doesn't grow without bound.
-        const MAX_BUFFER_SECONDS = 30;
-        const TRIM_TO_SECONDS = 15;
-
-        let abortController = null;
-        let reconnectTimer = null;
-        let objectUrl = null;
-
-        const scheduleReconnect = () => {
-            if (reconnectTimer) {
-                return;
-            }
-            status.style.display = 'flex';
-            status.textContent = 'Connection lost, reconnecting…';
-            reconnectTimer = setTimeout(() => {
-                reconnectTimer = null;
-                connect();
-            }, 2000);
-        };
-
-        const connect = () => {
-            if (!('MediaSource' in window) || !MediaSource.isTypeSupported(mimeCodec)) {
-                status.textContent = 'This browser cannot play the camera feed.';
-                return;
-            }
-
-            if (abortController) {
-                abortController.abort();
-            }
-            abortController = new AbortController();
-            const { signal } = abortController;
-
-            if (objectUrl) {
-                URL.revokeObjectURL(objectUrl);
-            }
-
-            const mediaSource = new MediaSource();
-            objectUrl = URL.createObjectURL(mediaSource);
-            stream.src = objectUrl;
-            stream.play().catch(() => {});
-
-            mediaSource.addEventListener('sourceopen', () => {
-                if (signal.aborted) {
-                    return;
-                }
-
-                const sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
-                const queue = [];
-
-                const pump = () => {
-                    if (sourceBuffer.updating || queue.length === 0) {
-                        return;
-                    }
-
-                    const next = queue.shift();
-                    if (next.type === 'append') {
-                        sourceBuffer.appendBuffer(next.data);
-                    } else {
-                        sourceBuffer.remove(next.start, next.end);
-                    }
-                };
-
-                sourceBuffer.addEventListener('updateend', () => {
-                    if (queue.length === 0 && sourceBuffer.buffered.length > 0) {
-                        const bufferedStart = sourceBuffer.buffered.start(0);
-                        const bufferedEnd = sourceBuffer.buffered.end(sourceBuffer.buffered.length - 1);
-                        if (bufferedEnd - bufferedStart > MAX_BUFFER_SECONDS) {
-                            queue.push({ type: 'remove', start: bufferedStart, end: bufferedEnd - TRIM_TO_SECONDS });
-                        }
-                    }
-                    pump();
-                });
-
-                sourceBuffer.addEventListener('error', scheduleReconnect);
-
-                fetch(feedUrl, { signal })
-                    .then((response) => {
-                        const reader = response.body.getReader();
-
-                        const read = () => {
-                            reader.read().then(({ done, value }) => {
-                                if (signal.aborted) {
-                                    return;
-                                }
-
-                                if (done) {
-                                    if (mediaSource.readyState === 'open') {
-                                        mediaSource.endOfStream();
-                                    }
-                                    scheduleReconnect();
-                                    return;
-                                }
-
-                                queue.push({ type: 'append', data: value });
-                                pump();
-                                read();
-                            }).catch((error) => {
-                                if (error.name !== 'AbortError') {
-                                    scheduleReconnect();
-                                }
-                            });
-                        };
-
-                        read();
-                    })
-                    .catch((error) => {
-                        if (error.name !== 'AbortError') {
-                            scheduleReconnect();
-                        }
-                    });
-            });
-        };
-
-        stream.addEventListener('loadeddata', () => {
-            status.style.display = 'none';
-        });
-
-        stream.addEventListener('error', scheduleReconnect);
-        stream.addEventListener('ended', scheduleReconnect);
-
-        startButton.addEventListener('click', () => {
-            startButton.style.display = 'none';
-            status.style.display = 'flex';
-            connect();
-        });
-    </script>
 @endsection

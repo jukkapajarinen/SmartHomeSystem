@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Camera;
 use App\Models\Sensor;
 
 class DashboardController
@@ -21,6 +22,8 @@ class DashboardController
         // chronological order so charts read left (old) to right (new).
         $sensors->each(fn ($sensor) => $sensor->setRelation('data', $sensor->data->reverse()->values()));
 
-        return view('dashboard', compact('sensors'));
+        $cameras = Camera::orderBy('order')->get();
+
+        return view('dashboard', compact('sensors', 'cameras'));
     }
 }

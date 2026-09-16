@@ -2,61 +2,134 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\View\View;
+use App\Models\Camera;
+use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Process\Process;
 
 class CameraController
 {
     /**
-     * Display the page hosting the live camera stream.
+     * Display the camera list along with the add-camera form.
      */
-    public function show(): View
+    public function list()
     {
-        return view('cameras');
+        return view('cameras', [
+            'cameras' => Camera::orderBy('order')->get(),
+        ]);
     }
 
     /**
-     * Proxy the ONVIF RTSP stream to the browser as fragmented MP4.
-     *
-     * ffmpeg re-encodes the RTSP feed to H.264 (whatever the source codec
-     * is) and muxes it as a fragmented, streamable MP4 with no seekable
-     * index, which a plain <video> tag can play progressively as it
-     * arrives. The output isn't forced to a fixed frame rate, so ffmpeg
-     * emits frames as fast as it decodes them; a high-resolution source
-     * (e.g. a camera's main stream) can outpace real-time decoding and
-     * make the feed stall, so the width is capped to keep the encode cheap
-     * regardless of the source stream, and the "ultrafast"/"zerolatency"
-     * encoder settings favor keeping up in real time over compression.
+     * Store a newly created camera in storage.
      */
-    public function feed(): StreamedResponse
+    public function store(Request $request)
     {
-        $streamUrl = config('services.onvif.stream_url');
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'stream_url' => 'required|string|max:255',
+            'max_width' => 'required|integer|min:1',
+            'quality' => 'required|integer|min:2|max:31',
+        ]);
 
-        abort_if(empty($streamUrl), 500, 'ONVIF_STREAM_URL is not configured.');
+        $nextOrder = (int) Camera::max('order') + 1;
 
-        $maxWidth = (int) config('services.onvif.max_width');
-        $crf = (int) config('services.onvif.quality');
+        Camera::create($request->only('name', 'stream_url', 'max_width', 'quality') + ['order' => $nextOrder]);
 
+        return redirect()->route('cameras.list')->with('success', 'Camera added successfully.');
+    }
+
+    /**
+     * Update an existing camera's settings in storage.
+     */
+    public function update(Request $request, Camera $camera)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'stream_url' => 'required|string|max:255',
+            'max_width' => 'required|integer|min:1',
+            'quality' => 'required|integer|min:2|max:31',
+        ]);
+
+        $camera->update($request->only('name', 'stream_url', 'max_width', 'quality'));
+
+        return redirect()->route('cameras.list')->with('success', 'Camera updated successfully.');
+    }
+
+    /**
+     * Move the given camera one place earlier in the list.
+     */
+    public function moveUp(Camera $camera)
+    {
+        $previous = Camera::where('order', '<', $camera->order)->orderBy('order', 'desc')->first();
+
+        if ($previous) {
+            $this->swapOrder($camera, $previous);
+        }
+
+        return redirect()->route('cameras.list');
+    }
+
+    /**
+     * Move the given camera one place later in the list.
+     */
+    public function moveDown(Camera $camera)
+    {
+        $next = Camera::where('order', '>', $camera->order)->orderBy('order')->first();
+
+        if ($next) {
+            $this->swapOrder($camera, $next);
+        }
+
+        return redirect()->route('cameras.list');
+    }
+
+    /**
+     * Swap the order values of two cameras.
+     */
+    private function swapOrder(Camera $a, Camera $b)
+    {
+        [$orderA, $orderB] = [$a->order, $b->order];
+
+        $a->update(['order' => $orderB]);
+        $b->update(['order' => $orderA]);
+    }
+
+    /**
+     * Remove the given camera from storage.
+     */
+    public function destroy(Camera $camera)
+    {
+        $camera->delete();
+
+        return redirect()->route('cameras.list')->with('success', 'Camera removed successfully.');
+    }
+
+    /**
+     * Proxy the given camera's ONVIF RTSP stream to the browser as an
+     * MJPEG multipart stream (multipart/x-mixed-replace).
+     *
+     * Each frame is a standalone JPEG, so there's no decoder buffer or
+     * container state to get stuck: a browser <img> pointed at this URL
+     * just keeps swapping in the latest frame, and a dropped connection
+     * surfaces as a plain 'error' event that's trivial to recover from by
+     * resetting the src. That trades away inter-frame compression (more
+     * bandwidth than H.264) for a stream that can't stall the way a
+     * fragmented-MP4 <video> can. The width is still capped to keep the
+     * encode cheap regardless of the source stream's resolution.
+     */
+    public function feed(Camera $camera): StreamedResponse
+    {
         $process = new Process([
             config('services.onvif.ffmpeg_binary'),
             '-rtsp_transport', 'tcp',
-            '-i', $streamUrl,
+            '-i', $camera->stream_url,
             '-an',
-            '-vf', "scale='min(iw,{$maxWidth})':-2",
-            '-c:v', 'libx264',
-            '-preset', 'ultrafast',
-            '-tune', 'zerolatency',
-            // Pinned so the browser-side Media Source Extensions player can
-            // declare a fixed 'avc1.42E028' codec string up front instead of
-            // guessing what profile/level libx264's defaults would pick.
-            '-profile:v', 'baseline',
-            '-level', '4.0',
-            '-pix_fmt', 'yuv420p',
-            '-g', '30',
-            '-crf', (string) $crf,
-            '-f', 'mp4',
-            '-movflags', 'frag_keyframe+empty_moov+default_base_moof',
+            '-vf', "scale='min(iw,{$camera->max_width})':-2",
+            '-c:v', 'mjpeg',
+            '-pix_fmt', 'yuvj420p',
+            '-q:v', (string) $camera->quality,
+            '-f', 'mpjpeg',
+            '-boundary_tag', 'ffmpeg',
             'pipe:1',
         ]);
         $process->setTimeout(null);
@@ -79,7 +152,7 @@ class CameraController
                 usleep(20_000);
             }
         }, 200, [
-            'Content-Type' => 'video/mp4',
+            'Content-Type' => 'multipart/x-mixed-replace;boundary=ffmpeg',
             'Cache-Control' => 'no-cache, no-store, must-revalidate',
             'Pragma' => 'no-cache',
             'X-Accel-Buffering' => 'no',

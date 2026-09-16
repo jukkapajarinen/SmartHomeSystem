@@ -32,10 +32,7 @@ return [
     ],
 
     'onvif' => [
-        'stream_url' => env('ONVIF_STREAM_URL'),
         'ffmpeg_binary' => env('ONVIF_FFMPEG_BINARY', 'ffmpeg'),
-        'max_width' => env('ONVIF_STREAM_MAX_WIDTH', 960),
-        'quality' => env('ONVIF_STREAM_QUALITY', 23),
     ],
 
 ];

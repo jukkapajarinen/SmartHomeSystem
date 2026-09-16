@@ -7,13 +7,13 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
             @if (session('success'))
-                <div class="p-4 text-sm text-green-700 bg-green-100 rounded-lg">
+                <div class="p-4 text-sm text-green-700 bg-green-100 border border-green-300 rounded-lg">
                     {{ session('success') }}
                 </div>
             @endif
 
             @if ($errors->any())
-                <div class="p-4 text-sm text-red-700 bg-red-100 rounded-lg">
+                <div class="p-4 text-sm text-red-700 bg-red-100 border border-red-300 rounded-lg">
                     <ul class="list-disc list-inside">
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>
