@@ -11,6 +11,25 @@
                 </div>
             @else
                 <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                    @foreach ($cameras as $camera)
+                        <div class="bg-gray-100 rounded-xl shadow-sm ring-1 ring-gray-300 overflow-hidden flex flex-col">
+                            <div class="bg-gray-800 px-6 py-3 flex items-center justify-between">
+                                <h3 class="text-xs font-medium text-white uppercase tracking-wider">{{ $camera->name }}</h3>
+                                <p class="text-xs font-medium text-gray-400 uppercase tracking-wider font-mono">{{ $camera->ip_address }}</p>
+                            </div>
+                            <div class="aspect-video flex-1 bg-black flex items-center justify-center">
+                                @if ($camera->has_snapshot)
+                                    <img
+                                        src="{{ route('cameras.feed', $camera) }}"
+                                        alt="{{ $camera->name }}"
+                                        loading="lazy"
+                                        class="w-full h-full object-contain"
+                                    >
+                                @endif
+                            </div>
+                        </div>
+                    @endforeach
+
                     @foreach ($sensors as $sensor)
                         <div class="bg-gray-100 rounded-xl shadow-sm ring-1 ring-gray-300 overflow-hidden">
                             <div class="bg-gray-800 px-6 py-3 flex items-center justify-between">
@@ -94,25 +113,6 @@
                                     </div>
                                 </div>
 
-                            </div>
-                        </div>
-                    @endforeach
-
-                    @foreach ($cameras as $camera)
-                        <div class="bg-gray-100 rounded-xl shadow-sm ring-1 ring-gray-300 overflow-hidden flex flex-col">
-                            <div class="bg-gray-800 px-6 py-3 flex items-center justify-between">
-                                <h3 class="text-xs font-medium text-white uppercase tracking-wider">{{ $camera->name }}</h3>
-                                <p class="text-xs font-medium text-gray-400 uppercase tracking-wider font-mono">{{ $camera->ip_address }}</p>
-                            </div>
-                            <div class="aspect-video flex-1 bg-black flex items-center justify-center">
-                                @if ($camera->has_snapshot)
-                                    <img
-                                        src="{{ route('cameras.feed', $camera) }}"
-                                        alt="{{ $camera->name }}"
-                                        loading="lazy"
-                                        class="w-full h-full object-contain"
-                                    >
-                                @endif
                             </div>
                         </div>
                     @endforeach
