@@ -94,7 +94,6 @@
                                     </div>
                                 </div>
 
-                                <p class="text-xs text-gray-600 mt-5">Updated {{ $latest->created_at->diffForHumans() }}</p>
                             </div>
                         </div>
                     @endforeach
@@ -105,9 +104,26 @@
                                 <h3 class="text-xs font-medium text-white uppercase tracking-wider">{{ $camera->name }}</h3>
                                 <p class="text-xs font-medium text-gray-400 uppercase tracking-wider font-mono">{{ $camera->ip_address }}</p>
                             </div>
-                            <!-- camera feed -->
+                            <div class="aspect-video bg-black flex items-center justify-center">
+                                @if ($camera->has_snapshot)
+                                    <img
+                                        src="{{ route('cameras.feed', $camera) }}"
+                                        alt="{{ $camera->name }}"
+                                        loading="lazy"
+                                        class="w-full h-full object-contain"
+                                        onerror="setTimeout(() => { this.src = '{{ route('cameras.feed', $camera) }}?t=' + Date.now(); }, 2000)"
+                                    >
+                                @else
+                                    <p class="text-xs text-gray-500">Waiting for first snapshot&hellip;</p>
+                                @endif
+                            </div>
                         </div>
                     @endforeach
+                </div>
+
+                <div class="text-xs text-gray-500 mt-6">
+                    <div>Updated: {{ $lastUpdate->format('d.m.Y - H:i:s') }}</div>
+                    <div>Next: {{ $nextUpdate->format('d.m.Y - H:i:s') }}</div>
                 </div>
             @endif
         </div>

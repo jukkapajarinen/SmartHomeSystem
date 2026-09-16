@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Camera;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\StreamedResponse;
-use Symfony\Component\Process\Process;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class CameraController
 {
@@ -105,57 +105,17 @@ class CameraController
     }
 
     /**
-     * Proxy the given camera's ONVIF RTSP stream to the browser as an
-     * MJPEG multipart stream (multipart/x-mixed-replace).
-     *
-     * Each frame is a standalone JPEG, so there's no decoder buffer or
-     * container state to get stuck: a browser <img> pointed at this URL
-     * just keeps swapping in the latest frame, and a dropped connection
-     * surfaces as a plain 'error' event that's trivial to recover from by
-     * resetting the src. That trades away inter-frame compression (more
-     * bandwidth than H.264) for a stream that can't stall the way a
-     * fragmented-MP4 <video> can. The width is still capped to keep the
-     * encode cheap regardless of the source stream's resolution.
+     * Serve the given camera's latest snapshot, captured on a schedule by
+     * CaptureCameras rather than on request. Nothing here talks to
+     * the camera or shells out to ffmpeg, so a request is just a quick file
+     * read and never ties up a worker waiting on the RTSP source.
      */
-    public function feed(Camera $camera): StreamedResponse
+    public function feed(Camera $camera): BinaryFileResponse
     {
-        $process = new Process([
-            config('services.onvif.ffmpeg_binary'),
-            '-rtsp_transport', 'tcp',
-            '-i', $camera->stream_url,
-            '-an',
-            '-vf', "scale='min(iw,{$camera->max_width})':-2",
-            '-c:v', 'mjpeg',
-            '-pix_fmt', 'yuvj420p',
-            '-q:v', (string) $camera->quality,
-            '-f', 'mpjpeg',
-            '-boundary_tag', 'ffmpeg',
-            'pipe:1',
-        ]);
-        $process->setTimeout(null);
-        $process->start();
+        abort_unless($camera->has_snapshot, 404);
 
-        return response()->stream(function () use ($process) {
-            while ($process->isRunning()) {
-                if (connection_aborted()) {
-                    $process->stop(0);
-                    break;
-                }
-
-                echo $process->getIncrementalOutput();
-
-                if (ob_get_level() > 0) {
-                    ob_flush();
-                }
-                flush();
-
-                usleep(20_000);
-            }
-        }, 200, [
-            'Content-Type' => 'multipart/x-mixed-replace;boundary=ffmpeg',
-            'Cache-Control' => 'no-cache, no-store, must-revalidate',
-            'Pragma' => 'no-cache',
-            'X-Accel-Buffering' => 'no',
+        return response()->file(Storage::disk('local')->path($camera->snapshotPath()), [
+            'Cache-Control' => 'no-store',
         ]);
     }
 }

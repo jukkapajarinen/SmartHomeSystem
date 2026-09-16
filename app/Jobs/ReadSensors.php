@@ -12,7 +12,7 @@ use App\Models\SensorData;
 use Exception;
 use Log;
 
-class ReadSensorData implements ShouldQueue
+class ReadSensors implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 

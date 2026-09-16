@@ -24,6 +24,12 @@ class DashboardController
 
         $cameras = Camera::orderBy('order')->get();
 
-        return view('dashboard', compact('sensors', 'cameras'));
+        // Sensors and cameras are both refreshed by an everyMinute() scheduled
+        // job, so the last/next refresh for either is always the current/next
+        // minute mark.
+        $lastUpdate = now()->startOfMinute();
+        $nextUpdate = $lastUpdate->copy()->addMinute();
+
+        return view('dashboard', compact('sensors', 'cameras', 'lastUpdate', 'nextUpdate'));
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
-use App\Jobs\ReadSensorData;
+use App\Jobs\CaptureCameras;
+use App\Jobs\ReadSensors;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -26,6 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withSchedule(function (Schedule $schedule) {
-        $schedule->job(new ReadSensorData())->everyMinute();
+        $schedule->job(new ReadSensors())->everyMinute();
+        $schedule->job(new CaptureCameras())->everyMinute();
     })
     ->create();
