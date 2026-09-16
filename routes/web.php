@@ -4,6 +4,7 @@ use App\Http\Controllers\SessionController;
 use App\Http\Controllers\PasswordController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SensorController;
+use App\Http\Controllers\CameraController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -33,6 +34,9 @@ Route::middleware('auth')->group(function () {
   Route::post('/sensors', [SensorController::class, 'store'])->name('sensors.store');
   Route::get('/sensors/{sensor}/edit', [SensorController::class, 'edit'])->name('sensors.edit');
   Route::patch('/sensors/{sensor}', [SensorController::class, 'update'])->name('sensors.update');
+
+  Route::get('/cameras', [CameraController::class, 'show'])->name('cameras.show');
+  Route::get('/cameras/feed', [CameraController::class, 'feed'])->name('cameras.feed');
 });
 
 Route::middleware('auth')->group(function () {

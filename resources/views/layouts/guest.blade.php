@@ -14,7 +14,7 @@
         <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gradient-to-b from-gray-50 to-gray-100">
             <div>
                 <a href="/" class="text-2xl font-bold text-gray-700">
-                    MiSMS
+                    SHS
                 </a>
             </div>
 
