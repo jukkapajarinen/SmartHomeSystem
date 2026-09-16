@@ -27,7 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withSchedule(function (Schedule $schedule) {
-        $schedule->job(new ReadSensors())->everyMinute();
         $schedule->job(new CaptureCameras())->everyMinute();
+        $schedule->job(new ReadSensors())->everyMinute();
     })
     ->create();

@@ -4,8 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Camera;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Illuminate\Http\Response;
 
 class CameraController
 {
@@ -106,15 +105,16 @@ class CameraController
 
     /**
      * Serve the given camera's latest snapshot, captured on a schedule by
-     * CaptureCameras rather than on request. Nothing here talks to
-     * the camera or shells out to ffmpeg, so a request is just a quick file
-     * read and never ties up a worker waiting on the RTSP source.
+     * CaptureCameras rather than on request. Nothing here talks to the
+     * camera or shells out to ffmpeg, so a request is just a quick read of
+     * the stored row and never ties up a worker waiting on the RTSP source.
      */
-    public function feed(Camera $camera): BinaryFileResponse
+    public function feed(Camera $camera): Response
     {
         abort_unless($camera->has_snapshot, 404);
 
-        return response()->file(Storage::disk('local')->path($camera->snapshotPath()), [
+        return response(base64_decode($camera->snapshot), 200, [
+            'Content-Type' => 'image/jpeg',
             'Cache-Control' => 'no-store',
         ]);
     }
