@@ -1,6 +1,6 @@
-# Mi Sensor Monitoring System
+# Smart Home System
 
-Laravel Xiaomi Mi Temperature and Humidity sensor monitoring system.
+Laravel app for Xiaomi Mi Temperature and Humidity sensors and Arenti Onvif CCTV cameras.
 
 ## Commands
 
