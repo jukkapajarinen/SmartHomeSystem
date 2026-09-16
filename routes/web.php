@@ -22,25 +22,21 @@ Route::get('/', function () {
   return redirect('/dashboard'); // Redirect to your desired route
 });
 
-Route::middleware('guest')->group(function () {
-    Route::get('/login', [SessionController::class, 'create'])->name('login');
-    Route::post('/login', [SessionController::class, 'store']);
-});
+Route::get('/login', [SessionController::class, 'create'])->middleware('guest')->name('login');
+Route::post('/login', [SessionController::class, 'store'])->middleware('guest');
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');
 
-Route::middleware('auth')->group(function () {
-  Route::get('/sensors', [SensorController::class, 'list'])->name('sensors.list');
-  Route::post('/sensors', [SensorController::class, 'store'])->name('sensors.store');
-  Route::get('/sensors/{sensor}/edit', [SensorController::class, 'edit'])->name('sensors.edit');
-  Route::patch('/sensors/{sensor}', [SensorController::class, 'update'])->name('sensors.update');
+Route::get('/sensors', [SensorController::class, 'list'])->middleware('auth')->name('sensors.list');
+Route::post('/sensors', [SensorController::class, 'store'])->middleware('auth')->name('sensors.store');
+Route::patch('/sensors/{sensor}', [SensorController::class, 'update'])->middleware('auth')->name('sensors.update');
+Route::patch('/sensors/{sensor}/move-up', [SensorController::class, 'moveUp'])->middleware('auth')->name('sensors.move-up');
+Route::patch('/sensors/{sensor}/move-down', [SensorController::class, 'moveDown'])->middleware('auth')->name('sensors.move-down');
+Route::delete('/sensors/{sensor}', [SensorController::class, 'destroy'])->middleware('auth')->name('sensors.destroy');
 
-  Route::get('/cameras', [CameraController::class, 'show'])->name('cameras.show');
-  Route::get('/cameras/feed', [CameraController::class, 'feed'])->name('cameras.feed');
-});
+Route::get('/cameras', [CameraController::class, 'show'])->middleware('auth')->name('cameras.show');
+Route::get('/cameras/feed', [CameraController::class, 'feed'])->middleware('auth')->name('cameras.feed');
 
-Route::middleware('auth')->group(function () {
-    Route::view('/profile', 'profile')->name('profile.edit');
-    Route::put('/password', [PasswordController::class, 'update'])->name('password.update');
-    Route::post('/logout', [SessionController::class, 'destroy'])->name('logout');
-});
+Route::view('/profile', 'profile')->middleware('auth')->name('profile.edit');
+Route::put('/password', [PasswordController::class, 'update'])->middleware('auth')->name('password.update');
+Route::post('/logout', [SessionController::class, 'destroy'])->middleware('auth')->name('logout');

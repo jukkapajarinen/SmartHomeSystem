@@ -18,6 +18,7 @@ class Sensor extends Model
         'name',
         'mac',
         'reachable',
+        'order',
     ];
 
     /**

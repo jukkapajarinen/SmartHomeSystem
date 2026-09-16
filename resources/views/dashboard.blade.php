@@ -6,28 +6,19 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             @if ($sensors->isEmpty())
-                <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
+                <div class="p-4 sm:p-8 bg-gray-100 shadow-sm ring-1 ring-gray-300 sm:rounded-lg">
                     <p class="text-sm text-gray-600">No sensors available.</p>
                 </div>
             @else
                 <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
                     @foreach ($sensors as $sensor)
-                        <div class="bg-white rounded-xl shadow-sm ring-1 ring-gray-900 ring-opacity-5 p-6">
-                            <!-- Header -->
-                            <div class="flex items-start justify-between mb-5">
-                                <div>
-                                    <h3 class="text-base font-semibold text-gray-900">{{ $sensor->name }}</h3>
-                                    <p class="text-xs text-gray-400 font-mono mt-0.5">{{ $sensor->mac }}</p>
-                                </div>
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium {{ $sensor->reachable ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
-                                    <span class="w-1.5 h-1.5 rounded-full {{ $sensor->reachable ? 'bg-green-500' : 'bg-red-500' }}"></span>
-                                    {{ $sensor->reachable ? 'Online' : 'Offline' }}
-                                </span>
+                        <div class="bg-gray-100 rounded-xl shadow-sm ring-1 ring-gray-300 overflow-hidden">
+                            <div class="bg-gray-800 px-6 py-3 flex items-center justify-between">
+                                <h3 class="text-xs font-medium text-white uppercase tracking-wider">{{ $sensor->name }}</h3>
+                                <p class="text-xs font-medium text-gray-400 uppercase tracking-wider font-mono">{{ $sensor->mac }}</p>
                             </div>
 
-                            @if ($sensor->data->isEmpty())
-                                <p class="text-sm text-gray-500">No data available for this sensor.</p>
-                            @else
+                            <div class="p-6">
                                 @php
                                     $latest = $sensor->data->last();
 
@@ -104,7 +95,7 @@
                                 </div>
 
                                 <p class="text-xs text-gray-400 mt-5">Updated {{ $latest->created_at->diffForHumans() }}</p>
-                            @endif
+                            </div>
                         </div>
                     @endforeach
                 </div>

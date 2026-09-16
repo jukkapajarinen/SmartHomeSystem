@@ -15,7 +15,7 @@ class DashboardController
     {
         $sensors = Sensor::with(['data' => function ($query) {
             $query->latest()->limit(self::HISTORY_SIZE);
-        }])->get();
+        }])->orderBy('order')->get()->reject(fn ($sensor) => $sensor->data->isEmpty());
 
         // The eager-loaded data comes back newest-first; flip it to
         // chronological order so charts read left (old) to right (new).

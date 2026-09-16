@@ -3,7 +3,7 @@
 @section('title', 'Login')
 
 @section('content')
-    <h2 class="text-lg font-semibold text-gray-900 mb-6">{{ __('Sign in') }}</h2>
+    <h2 class="text-base font-semibold text-gray-900 mb-6">{{ __('Sign in') }}</h2>
 
     <!-- Session Status -->
     @if (session('status'))
@@ -18,7 +18,7 @@
         <!-- Username -->
         <div>
             <label for="username" class="block font-medium text-sm text-gray-700">{{ __('Email or username') }}</label>
-            <input id="username" class="appearance-none border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full" type="text" name="username" value="{{ old('username') }}" required autofocus autocomplete="username">
+            <input id="username" class="appearance-none border border-gray-400 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full" type="text" name="username" value="{{ old('username') }}" required autofocus autocomplete="username">
             @if ($errors->has('username'))
                 <ul class="text-sm text-red-600 space-y-1 mt-2">
                     @foreach ($errors->get('username') as $message)
@@ -32,7 +32,7 @@
         <div class="mt-4">
             <label for="password" class="block font-medium text-sm text-gray-700">{{ __('Password') }}</label>
 
-            <input id="password" class="appearance-none border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full"
+            <input id="password" class="appearance-none border border-gray-400 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full"
                             type="password"
                             name="password"
                             required autocomplete="current-password">

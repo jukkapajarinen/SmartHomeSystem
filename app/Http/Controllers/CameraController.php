@@ -47,6 +47,11 @@ class CameraController
             '-c:v', 'libx264',
             '-preset', 'ultrafast',
             '-tune', 'zerolatency',
+            // Pinned so the browser-side Media Source Extensions player can
+            // declare a fixed 'avc1.42E028' codec string up front instead of
+            // guessing what profile/level libx264's defaults would pick.
+            '-profile:v', 'baseline',
+            '-level', '4.0',
             '-pix_fmt', 'yuv420p',
             '-g', '30',
             '-crf', (string) $crf,
