@@ -29,7 +29,7 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Order</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Name</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">MAC Address</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Last Read</th>
                             <th class="px-6 py-3 text-right text-xs font-medium text-white uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
@@ -56,11 +56,9 @@
                                 <td class="px-6 py-3 text-sm text-gray-500">
                                     <input type="text" name="mac" form="sensor-update-{{ $sensor->id }}" value="{{ $sensor->mac }}" class="block w-full appearance-none border border-gray-300 focus:border-indigo-500 bg-transparent hover:bg-white px-2 py-1 text-sm text-gray-500 font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md">
                                 </td>
-                                <td class="px-6 py-3 text-sm">
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium {{ $sensor->reachable ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
-                                        <span class="w-1.5 h-1.5 rounded-full {{ $sensor->reachable ? 'bg-green-500' : 'bg-red-500' }}"></span>
-                                        {{ $sensor->reachable ? 'Online' : 'Offline' }}
-                                    </span>
+                                <td class="px-6 py-3 text-sm text-gray-500">
+                                    @php $lastReading = $sensor->data->last(); @endphp
+                                    {{ $lastReading ? $lastReading->created_at->format('d.m.Y - H:i:s') : 'Never' }}
                                 </td>
                                 <td class="px-6 py-3 text-sm text-right space-x-3 whitespace-nowrap">
                                     <button type="submit" form="sensor-update-{{ $sensor->id }}" class="font-medium text-indigo-600 hover:text-indigo-800">Save</button>

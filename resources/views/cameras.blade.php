@@ -31,6 +31,7 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Stream URL</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Max Width</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Quality</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Last Read</th>
                             <th class="px-6 py-3 text-right text-xs font-medium text-white uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
@@ -63,6 +64,9 @@
                                 <td class="px-6 py-3 text-sm text-gray-500">
                                     <input type="number" name="quality" form="camera-update-{{ $camera->id }}" value="{{ $camera->quality }}" min="2" max="31" class="block w-20 appearance-none border border-gray-300 focus:border-indigo-500 bg-transparent hover:bg-white px-2 py-1 text-sm text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md">
                                 </td>
+                                <td class="px-6 py-3 text-sm text-gray-500">
+                                    {{ $camera->has_snapshot ? $camera->snapshot_captured_at->format('d.m.Y - H:i:s') : 'Never' }}
+                                </td>
                                 <td class="px-6 py-3 text-sm text-right space-x-3 whitespace-nowrap">
                                     <button type="submit" form="camera-update-{{ $camera->id }}" class="font-medium text-indigo-600 hover:text-indigo-800">Save</button>
                                     <form method="POST" action="{{ route('cameras.destroy', $camera) }}" class="inline">
@@ -74,7 +78,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-6 py-8 text-center text-sm text-gray-500">No cameras found.</td>
+                                <td colspan="7" class="px-6 py-8 text-center text-sm text-gray-500">No cameras found.</td>
                             </tr>
                         @endforelse
                     </tbody>
