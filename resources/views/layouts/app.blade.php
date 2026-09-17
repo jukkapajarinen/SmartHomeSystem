@@ -19,7 +19,8 @@
                         <div class="flex">
                             <!-- Logo -->
                             <div class="flex-shrink-0 flex items-center mr-6">
-                                <a href="{{ route('dashboard') }}" class="text-lg font-bold text-white">
+                                <a href="{{ route('dashboard') }}" class="flex items-center gap-2 text-lg font-bold text-white">
+                                    <img src="{{ asset('favicon.ico') }}" alt="" class="w-8 h-8">
                                     SHS
                                 </a>
                             </div>

@@ -119,8 +119,15 @@
                 </div>
 
                 <div class="text-xs text-gray-500 mt-6">
-                    <div>Updated: {{ $lastUpdate->format('d.m.Y - H:i:s') }}</div>
-                    <div>Next: {{ $nextUpdate->format('d.m.Y - H:i:s') }}</div>
+                    <div class="flex items-center gap-1.5">
+                        Data from: {{ $lastUpdate->format('d.m.Y - H:i:s') }}
+                        <img
+                            src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMCAxMCI+PGNpcmNsZSBjeD0iNSIgY3k9IjUiIHI9IjUiIGZpbGw9IiM2MGE1ZmEiLz48L3N2Zz4="
+                            alt=""
+                            class="w-2 h-2 animate-bounce"
+                            onload="setTimeout(() => location.reload(), 60000)"
+                        >
+                    </div>
                 </div>
             @endif
         </div>

@@ -14,7 +14,8 @@
         <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-white">
             <div class="w-full sm:max-w-md mt-6 bg-gray-100 shadow-sm ring-1 ring-gray-300 overflow-hidden sm:rounded-xl">
                 <div class="bg-gray-800 px-6 py-3 text-center">
-                    <a href="/" class="text-lg font-medium text-white uppercase tracking-wider">
+                    <a href="/" class="inline-flex items-center gap-2 text-lg font-medium text-white uppercase tracking-wider">
+                        <img src="{{ asset('favicon.ico') }}" alt="" class="w-8 h-8">
                         SHS
                     </a>
                 </div>
