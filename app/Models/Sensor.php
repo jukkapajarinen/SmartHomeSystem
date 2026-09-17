@@ -33,4 +33,8 @@ class Sensor extends Model
     public function data() {
         return $this->hasMany(SensorData::class);
     }
+
+    public function latestData() {
+        return $this->hasOne(SensorData::class)->latestOfMany();
+    }
 }

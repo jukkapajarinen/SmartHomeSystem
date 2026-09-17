@@ -45,12 +45,14 @@ class ReadSensors implements ShouldQueue
       $sensors = Sensor::all();
 
       Log::info('Starting to read BLE sensors');
-        
+
       foreach ($sensors as $sensor) {
           try {
+              $mac = escapeshellarg($sensor->mac);
+
               // Start the BLE device discovery
-              $output = shell_exec("gatttool -b {$sensor->mac} --primary");
-              if (strpos($output, 'error') !== false) {
+              $output = shell_exec("gatttool -b {$mac} --primary 2>&1");
+              if ($output === null || strpos($output, 'error') !== false || strpos($output, 'connect to') !== false) {
                   throw new Exception("Failed to discover services for sensor {$sensor->name} (MAC: {$sensor->mac})");
               }
 
@@ -60,7 +62,7 @@ class ReadSensors implements ShouldQueue
               $humidityHandle = "00002a6f-0000-1000-8000-00805f9b34fb";
 
               // Reading the battery value
-              $batteryOutput = shell_exec("gatttool -b {$sensor->mac} --char-read --uuid={$batteryHandle}");
+              $batteryOutput = shell_exec("gatttool -b {$mac} --char-read --uuid={$batteryHandle} 2>&1");
               $batteryValue = $this->parseValue($batteryOutput);
               if ($batteryValue) {
                   $battery = $this->readUInt8($batteryValue);
@@ -69,7 +71,7 @@ class ReadSensors implements ShouldQueue
               }
 
               // Reading the temperature value
-              $temperatureOutput = shell_exec("gatttool -b {$sensor->mac} --char-read --uuid={$temperatureHandle}");
+              $temperatureOutput = shell_exec("gatttool -b {$mac} --char-read --uuid={$temperatureHandle} 2>&1");
               $temperatureValue = $this->parseValue($temperatureOutput);
               if ($temperatureValue) {
                   $temperature = $this->readInt16LE($temperatureValue) / 10;
@@ -78,7 +80,7 @@ class ReadSensors implements ShouldQueue
               }
 
               // Reading the humidity value
-              $humidityOutput = shell_exec("gatttool -b {$sensor->mac} --char-read --uuid={$humidityHandle}");
+              $humidityOutput = shell_exec("gatttool -b {$mac} --char-read --uuid={$humidityHandle} 2>&1");
               $humidityValue = $this->parseValue($humidityOutput);
               if ($humidityValue) {
                   $humidity = $this->readInt16LE($humidityValue) / 100;

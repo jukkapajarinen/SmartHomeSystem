@@ -56,9 +56,8 @@
                                 <td class="px-6 py-3 text-sm text-gray-500">
                                     <input type="text" name="mac" form="sensor-update-{{ $sensor->id }}" value="{{ $sensor->mac }}" class="block w-full appearance-none border border-gray-300 focus:border-indigo-500 bg-transparent hover:bg-white px-2 py-1 text-sm text-gray-500 font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md">
                                 </td>
-                                <td class="px-6 py-3 text-sm text-gray-500">
-                                    @php $lastReading = $sensor->data->last(); @endphp
-                                    {{ $lastReading ? $lastReading->created_at->format('d.m.Y - H:i:s') : 'Never' }}
+                                <td class="px-6 py-3 text-sm {{ $sensor->latestData && $sensor->latestData->created_at->lt(now()->subMinutes(5)) ? 'text-red-600' : 'text-gray-500' }}">
+                                    {{ $sensor->latestData ? $sensor->latestData->created_at->format('d.m.Y - H:i:s') : 'Never' }}
                                 </td>
                                 <td class="px-6 py-3 text-sm text-right space-x-3 whitespace-nowrap">
                                     <button type="submit" form="sensor-update-{{ $sensor->id }}" class="font-medium text-indigo-600 hover:text-indigo-800">Save</button>

@@ -13,7 +13,7 @@ class SensorController
     public function list()
     {
         return view('sensors', [
-            'sensors' => Sensor::with('data')->orderBy('order')->get(),
+            'sensors' => Sensor::with('latestData')->orderBy('order')->get(),
         ]);
     }
 
