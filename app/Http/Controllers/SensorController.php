@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Sensor;
+use App\Services\ActivityLog;
 use Illuminate\Http\Request;
 
 class SensorController
@@ -12,8 +13,11 @@ class SensorController
      */
     public function list()
     {
+        $sensors = Sensor::with('latestData')->orderBy('order')->get();
+
         return view('sensors', [
-            'sensors' => Sensor::with('latestData')->orderBy('order')->get(),
+            'sensors' => $sensors,
+            'logEntries' => ActivityLog::latestEntriesFor($sensors->pluck('mac')->all()),
         ]);
     }
 

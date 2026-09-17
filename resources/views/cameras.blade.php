@@ -65,7 +65,10 @@
                                     <input type="number" name="quality" form="camera-update-{{ $camera->id }}" value="{{ $camera->quality }}" min="2" max="31" class="block w-20 appearance-none border border-gray-300 focus:border-indigo-500 bg-transparent hover:bg-white px-2 py-1 text-sm text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md">
                                 </td>
                                 <td class="px-6 py-3 text-sm {{ !$camera->has_snapshot || $camera->snapshot_captured_at->lt(now()->subMinutes(5)) ? 'text-red-600' : 'text-gray-500' }}">
-                                    {{ $camera->has_snapshot ? $camera->snapshot_captured_at->format('d.m.Y - H:i:s') : 'Never' }}
+                                    @php $log = $logEntries["camera {$camera->name}"] ?? []; @endphp
+                                    <span class="border-b border-dotted border-gray-400 cursor-help" title="{{ $log ? implode("\n", $log) : 'No log entries found for this camera.' }}">
+                                        {{ $camera->has_snapshot ? $camera->snapshot_captured_at->format('d.m.Y - H:i:s') : 'Never' }}
+                                    </span>
                                 </td>
                                 <td class="px-6 py-3 text-sm text-right space-x-3 whitespace-nowrap">
                                     <button type="submit" form="camera-update-{{ $camera->id }}" class="font-medium text-indigo-600 hover:text-indigo-800">Save</button>

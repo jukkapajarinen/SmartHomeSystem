@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Camera;
+use App\Services\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -13,8 +14,13 @@ class CameraController
      */
     public function list()
     {
+        $cameras = Camera::orderBy('order')->get();
+
         return view('cameras', [
-            'cameras' => Camera::orderBy('order')->get(),
+            'cameras' => $cameras,
+            'logEntries' => ActivityLog::latestEntriesFor(
+                $cameras->map(fn (Camera $camera) => "camera {$camera->name}")->all()
+            ),
         ]);
     }
 
