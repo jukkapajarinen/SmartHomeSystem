@@ -7,7 +7,7 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             @if ($sensors->isEmpty() && $cameras->isEmpty())
                 <div class="p-4 sm:p-8 bg-gray-100 shadow-sm ring-1 ring-gray-300 sm:rounded-lg">
-                    <p class="text-sm text-gray-600">No sensors or cameras available.</p>
+                    <p class="text-sm text-gray-600">No data available.</p>
                 </div>
             @else
                 <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">

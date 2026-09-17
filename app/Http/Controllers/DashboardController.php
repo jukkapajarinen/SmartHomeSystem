@@ -22,7 +22,7 @@ class DashboardController
         // chronological order so charts read left (old) to right (new).
         $sensors->each(fn ($sensor) => $sensor->setRelation('data', $sensor->data->reverse()->values()));
 
-        $cameras = Camera::orderBy('order')->get();
+        $cameras = Camera::orderBy('order')->get()->reject(fn ($camera) => ! $camera->has_snapshot);
 
         // Sensors and cameras are both refreshed by an everyMinute() scheduled
         // job, so the last/next refresh for either is always the current/next
