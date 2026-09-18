@@ -66,15 +66,17 @@
                                 @php
                                     $latest = $sensor->data->last();
 
+                                    // Floors keep the bars from exaggerating trivial sensor
+                                    // noise (e.g. a 1% humidity blip) into a full-height swing.
                                     $temps = $sensor->data->pluck('temperature');
                                     $minTemp = $temps->min();
                                     $maxTemp = $temps->max();
-                                    $tempRange = max($maxTemp - $minTemp, 0.1);
+                                    $tempRange = max($maxTemp - $minTemp, 2.0);
 
                                     $hums = $sensor->data->pluck('humidity');
                                     $minHum = $hums->min();
                                     $maxHum = $hums->max();
-                                    $humRange = max($maxHum - $minHum, 0.1);
+                                    $humRange = max($maxHum - $minHum, 10.0);
 
                                     $tempColor = $latest->temperature >= 28 ? 'text-red-500' : ($latest->temperature <= 15 ? 'text-blue-500' : 'text-gray-900');
                                     $batteryTextColor = $latest->battery <= 20 ? 'text-red-500' : ($latest->battery <= 50 ? 'text-yellow-500' : 'text-green-600');
