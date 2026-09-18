@@ -10,9 +10,34 @@
                     <p class="text-sm text-gray-600">No data available.</p>
                 </div>
             @else
-                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                <div class="flex items-center justify-between gap-4 mb-4">
+
+                    <div class="flex items-center gap-4">
+                        <select onchange="cardsGrid.prepend(...cardsGrid.querySelectorAll(`[data-type='${this.value}']`))" class="text-sm border-gray-300 rounded-md focus:border-blue-500 focus:ring-blue-500">
+                            <option value="camera">Cameras first</option>
+                            <option value="sensor">Sensors first</option>
+                        </select>
+                        <select onchange="cardsGrid.className=cardsGrid.className.replace(/xl:grid-cols-\d/,`xl:grid-cols-${this.value}`)" class="text-sm border-gray-300 rounded-md focus:border-blue-500 focus:ring-blue-500">
+                            <option value="1">1 column</option>
+                            <option value="2">2 columns</option>
+                            <option value="3" selected>3 columns</option>
+                            <option value="4">4 columns</option>
+                        </select>
+                    </div>                    
+                    <div class="text-xs text-gray-500 flex items-center gap-1.5">
+                        Data from: {{ $lastUpdate->format('d.m.Y - H:i:s') }}
+                        <img
+                            src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMCAxMCI+PGNpcmNsZSBjeD0iNSIgY3k9IjUiIHI9IjUiIGZpbGw9IiM2MGE1ZmEiLz48L3N2Zz4="
+                            alt=""
+                            class="w-2 h-2 animate-bounce"
+                            onload="setTimeout(() => location.reload(), 60000)"
+                        >
+                    </div>
+                </div>
+
+                <div id="cardsGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
                     @foreach ($cameras as $camera)
-                        <div class="bg-gray-100 rounded-xl shadow-sm ring-1 ring-gray-300 overflow-hidden flex flex-col">
+                        <div data-type="camera" class="bg-gray-100 rounded-xl shadow-sm ring-1 ring-gray-300 overflow-hidden flex flex-col">
                             <div class="bg-gray-800 px-6 py-3 flex items-center justify-between">
                                 <h3 class="text-xs font-medium text-white uppercase tracking-wider">{{ $camera->name }}</h3>
                                 <p class="text-xs font-medium text-gray-400 uppercase tracking-wider font-mono">{{ $camera->ip_address }}</p>
@@ -31,7 +56,7 @@
                     @endforeach
 
                     @foreach ($sensors as $sensor)
-                        <div class="bg-gray-100 rounded-xl shadow-sm ring-1 ring-gray-300 overflow-hidden">
+                        <div data-type="sensor" class="bg-gray-100 rounded-xl shadow-sm ring-1 ring-gray-300 overflow-hidden">
                             <div class="bg-gray-800 px-6 py-3 flex items-center justify-between">
                                 <h3 class="text-xs font-medium text-white uppercase tracking-wider">{{ $sensor->name }}</h3>
                                 <p class="text-xs font-medium text-gray-400 uppercase tracking-wider font-mono">{{ $sensor->mac }}</p>
@@ -116,18 +141,6 @@
                             </div>
                         </div>
                     @endforeach
-                </div>
-
-                <div class="text-xs text-gray-500 mt-6">
-                    <div class="flex items-center gap-1.5">
-                        Data from: {{ $lastUpdate->format('d.m.Y - H:i:s') }}
-                        <img
-                            src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMCAxMCI+PGNpcmNsZSBjeD0iNSIgY3k9IjUiIHI9IjUiIGZpbGw9IiM2MGE1ZmEiLz48L3N2Zz4="
-                            alt=""
-                            class="w-2 h-2 animate-bounce"
-                            onload="setTimeout(() => location.reload(), 60000)"
-                        >
-                    </div>
                 </div>
             @endif
         </div>
