@@ -7,13 +7,15 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
             @if (session('success'))
-                <div class="p-4 text-sm text-green-700 bg-green-100 border border-green-300 rounded-lg">
+                <div class="p-4 text-sm text-green-700 bg-green-100 border border-green-300 rounded-lg flex items-center gap-2">
+                    <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
                     {{ session('success') }}
                 </div>
             @endif
 
             @if ($errors->any())
-                <div class="p-4 text-sm text-red-700 bg-red-100 border border-red-300 rounded-lg">
+                <div class="p-4 text-sm text-red-700 bg-red-100 border border-red-300 rounded-lg flex items-start gap-2">
+                    <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>
                     <ul class="list-disc list-inside">
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>
@@ -35,7 +37,7 @@
                     </thead>
                     <tbody class="divide-y divide-gray-200">
                         @forelse($sensors as $sensor)
-                            <tr>
+                            <tr class="hover:bg-white transition-colors">
                                 <td class="px-6 py-3 text-sm">
                                     <div class="flex items-center gap-1.5">
                                         <form method="POST" action="{{ route('sensors.move-up', $sensor) }}">
@@ -64,7 +66,7 @@
                                 </td>
                                 <td class="px-6 py-3 text-sm text-right space-x-3 whitespace-nowrap">
                                     <button type="submit" form="sensor-update-{{ $sensor->id }}" class="font-medium text-indigo-600 hover:text-indigo-800">Save</button>
-                                    <form method="POST" action="{{ route('sensors.destroy', $sensor) }}" class="inline">
+                                    <form method="POST" action="{{ route('sensors.destroy', $sensor) }}" class="inline" onsubmit="return confirm('Delete this sensor? This cannot be undone.');">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="font-medium text-red-600 hover:text-red-800">Delete</button>
@@ -73,7 +75,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="px-6 py-8 text-center text-sm text-gray-500">No sensors found.</td>
+                                <td colspan="5" class="px-6 py-10 text-center text-sm text-gray-500">No sensors yet — add one below.</td>
                             </tr>
                         @endforelse
                     </tbody>

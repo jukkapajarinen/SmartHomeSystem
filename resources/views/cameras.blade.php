@@ -7,13 +7,15 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
             @if (session('success'))
-                <div class="p-4 text-sm text-green-700 bg-green-100 border border-green-300 rounded-lg">
+                <div class="p-4 text-sm text-green-700 bg-green-100 border border-green-300 rounded-lg flex items-center gap-2">
+                    <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
                     {{ session('success') }}
                 </div>
             @endif
 
             @if ($errors->any())
-                <div class="p-4 text-sm text-red-700 bg-red-100 border border-red-300 rounded-lg">
+                <div class="p-4 text-sm text-red-700 bg-red-100 border border-red-300 rounded-lg flex items-start gap-2">
+                    <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>
                     <ul class="list-disc list-inside">
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>
@@ -37,7 +39,7 @@
                     </thead>
                     <tbody class="divide-y divide-gray-200">
                         @forelse($cameras as $camera)
-                            <tr>
+                            <tr class="hover:bg-white transition-colors">
                                 <td class="px-6 py-3 text-sm">
                                     <div class="flex items-center gap-1.5">
                                         <form method="POST" action="{{ route('cameras.move-up', $camera) }}">
@@ -56,7 +58,15 @@
                                     <input type="text" name="name" form="camera-update-{{ $camera->id }}" value="{{ $camera->name }}" class="block w-full appearance-none border border-gray-300 focus:border-indigo-500 bg-transparent hover:bg-white px-2 py-1 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md">
                                 </td>
                                 <td class="px-6 py-3 text-sm text-gray-500">
-                                    <input type="text" name="stream_url" form="camera-update-{{ $camera->id }}" value="{{ $camera->stream_url }}" class="block w-full min-w-[16rem] appearance-none border border-gray-300 focus:border-indigo-500 bg-transparent hover:bg-white px-2 py-1 text-sm text-gray-500 font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md">
+                                    <div class="relative">
+                                        <input type="password" name="stream_url" form="camera-update-{{ $camera->id }}" value="{{ $camera->stream_url }}" class="block w-full appearance-none border border-gray-300 focus:border-indigo-500 bg-transparent hover:bg-white px-2 py-1 pr-8 text-sm text-gray-500 font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md">
+                                        <button type="button" tabindex="-1" title="Show/hide stream URL" onclick="const i=this.previousElementSibling; i.type = i.type === 'password' ? 'text' : 'password';" class="absolute right-1.5 top-1/2 transform -translate-y-1/2 flex items-center justify-center p-0 border-0 leading-none bg-transparent text-gray-400 hover:text-gray-600">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0Z" />
+                                            </svg>
+                                        </button>
+                                    </div>
                                 </td>
                                 <td class="px-6 py-3 text-sm text-gray-500">
                                     <input type="number" name="max_width" form="camera-update-{{ $camera->id }}" value="{{ $camera->max_width }}" min="1" class="block w-24 appearance-none border border-gray-300 focus:border-indigo-500 bg-transparent hover:bg-white px-2 py-1 text-sm text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md">
@@ -72,7 +82,7 @@
                                 </td>
                                 <td class="px-6 py-3 text-sm text-right space-x-3 whitespace-nowrap">
                                     <button type="submit" form="camera-update-{{ $camera->id }}" class="font-medium text-indigo-600 hover:text-indigo-800">Save</button>
-                                    <form method="POST" action="{{ route('cameras.destroy', $camera) }}" class="inline">
+                                    <form method="POST" action="{{ route('cameras.destroy', $camera) }}" class="inline" onsubmit="return confirm('Delete this camera? This cannot be undone.');">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="font-medium text-red-600 hover:text-red-800">Delete</button>
@@ -81,7 +91,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="px-6 py-8 text-center text-sm text-gray-500">No cameras found.</td>
+                                <td colspan="7" class="px-6 py-10 text-center text-sm text-gray-500">No cameras yet — add one below.</td>
                             </tr>
                         @endforelse
                     </tbody>
