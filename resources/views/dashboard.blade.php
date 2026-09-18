@@ -56,83 +56,62 @@
                     @endforeach
 
                     @foreach ($sensors as $sensor)
-                        <div data-type="sensor" class="bg-gray-100 rounded-xl shadow-sm ring-1 ring-gray-300 overflow-hidden">
+                        <div data-type="sensor" class="bg-gray-100 rounded-xl shadow-sm ring-1 ring-gray-300 overflow-hidden flex flex-col">
                             <div class="bg-gray-800 px-6 py-3 flex items-center justify-between">
                                 <h3 class="text-xs font-medium text-white uppercase tracking-wider">{{ $sensor->name }}</h3>
                                 <p class="text-xs font-medium text-gray-400 uppercase tracking-wider font-mono">{{ $sensor->mac }}</p>
                             </div>
 
-                            <div class="p-6">
+                            <div class="flex-1 flex flex-col">
                                 @php
                                     $latest = $sensor->data->last();
-
-                                    // Bars use a fixed absolute scale (not the window's own min/max) so a
-                                    // reading's height reflects its real value, e.g. 50°C/50% is half height.
-                                    $tempScaleMin = -50;
-                                    $tempScaleMax = 50;
-
-                                    $temps = $sensor->data->pluck('temperature');
-                                    $minTemp = $temps->min();
-                                    $maxTemp = $temps->max();
-
-                                    $hums = $sensor->data->pluck('humidity');
-                                    $minHum = $hums->min();
-                                    $maxHum = $hums->max();
+                                    $recent = $sensor->data->reverse()->take(5);
 
                                     $tempColor = $latest->temperature >= 28 ? 'text-red-500' : ($latest->temperature <= 15 ? 'text-blue-500' : 'text-gray-900');
                                     $batteryTextColor = $latest->battery <= 20 ? 'text-red-500' : ($latest->battery <= 50 ? 'text-yellow-500' : 'text-green-600');
                                 @endphp
 
                                 <!-- Stat tiles -->
-                                <div class="grid grid-cols-3 gap-3 mb-5">
-                                    <div class="rounded-lg bg-gray-50 p-3 text-center">
+                                <div class="grid grid-cols-3 divide-x divide-gray-300">
+                                    <div class="p-3 flex flex-col items-center justify-center text-center cursor-default">
                                         <div class="text-2xl font-bold {{ $tempColor }}">{{ number_format($latest->temperature, 1) }}°</div>
                                         <div class="text-xs text-gray-500 mt-1">Temp</div>
                                     </div>
-                                    <div class="rounded-lg bg-gray-50 p-3 text-center">
+                                    <div class="p-3 flex flex-col items-center justify-center text-center cursor-default">
                                         <div class="text-2xl font-bold text-blue-600">{{ number_format($latest->humidity, 0) }}%</div>
                                         <div class="text-xs text-gray-500 mt-1">Humidity</div>
                                     </div>
-                                    <div class="rounded-lg bg-gray-50 p-3 text-center">
+                                    <div class="p-3 flex flex-col items-center justify-center text-center cursor-default">
                                         <div class="text-2xl font-bold {{ $batteryTextColor }}">{{ $latest->battery }}%</div>
                                         <div class="text-xs text-gray-500 mt-1">Battery</div>
                                     </div>
                                 </div>
 
-                                <!-- Temperature trend -->
-                                <div class="mb-4">
-                                    <div class="flex justify-between text-xs text-gray-500 mb-1.5">
-                                        <span class="font-medium text-gray-600">Temperature</span>
-                                        <span>{{ number_format($minTemp, 1) }}° – {{ number_format($maxTemp, 1) }}°</span>
-                                    </div>
-                                    <div class="flex items-end gap-px h-24">
-                                        @foreach ($sensor->data as $point)
-                                            @php $h = min(max((($point->temperature - $tempScaleMin) / ($tempScaleMax - $tempScaleMin)) * 100, 2), 100); @endphp
-                                            <div class="flex-1 bg-indigo-300 hover:bg-indigo-500 rounded-t-sm transition-colors"
-                                                 style="height: {{ $h }}%"
-                                                 title="{{ number_format($point->temperature, 1) }}° at {{ $point->created_at->format('H:i') }}">
-                                            </div>
+                                <!-- History -->
+                                <table class="w-full border-t border-gray-300 text-xs">
+                                    <thead>
+                                        <tr class="bg-gray-50 border-b border-gray-300">
+                                            <th class="px-3 py-2 text-left font-semibold text-gray-400 uppercase tracking-wider">Time</th>
+                                            <th class="px-3 py-2 text-right font-semibold text-gray-400 uppercase tracking-wider">Temp</th>
+                                            <th class="px-3 py-2 text-right font-semibold text-gray-400 uppercase tracking-wider">Humidity</th>
+                                            <th class="px-3 py-2 text-right font-semibold text-gray-400 uppercase tracking-wider">Battery</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200">
+                                        @foreach ($recent as $point)
+                                            @php
+                                                $pointTempColor = $point->temperature >= 28 ? 'text-red-500' : ($point->temperature <= 15 ? 'text-blue-500' : 'text-gray-900');
+                                                $pointBatteryColor = $point->battery <= 20 ? 'text-red-500' : ($point->battery <= 50 ? 'text-yellow-500' : 'text-green-600');
+                                            @endphp
+                                            <tr class="{{ $loop->even ? 'bg-gray-50' : '' }} hover:bg-white transition-colors">
+                                                <td class="px-3 py-1.5 text-gray-500">{{ $point->created_at->format('d.m.Y - H:i:s') }}</td>
+                                                <td class="px-3 py-1.5 text-right font-medium {{ $pointTempColor }}">{{ number_format($point->temperature, 1) }}°</td>
+                                                <td class="px-3 py-1.5 text-right font-medium text-blue-600">{{ number_format($point->humidity, 0) }}%</td>
+                                                <td class="px-3 py-1.5 text-right font-medium {{ $pointBatteryColor }}">{{ $point->battery }}%</td>
+                                            </tr>
                                         @endforeach
-                                    </div>
-                                </div>
-
-                                <!-- Humidity trend -->
-                                <div>
-                                    <div class="flex justify-between text-xs text-gray-500 mb-1.5">
-                                        <span class="font-medium text-gray-600">Humidity</span>
-                                        <span>{{ number_format($minHum, 0) }}% – {{ number_format($maxHum, 0) }}%</span>
-                                    </div>
-                                    <div class="flex items-end gap-px h-24">
-                                        @foreach ($sensor->data as $point)
-                                            @php $h = min(max($point->humidity, 2), 100); @endphp
-                                            <div class="flex-1 bg-blue-300 hover:bg-blue-500 rounded-t-sm transition-colors"
-                                                 style="height: {{ $h }}%"
-                                                 title="{{ number_format($point->humidity, 0) }}% at {{ $point->created_at->format('H:i') }}">
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     @endforeach
