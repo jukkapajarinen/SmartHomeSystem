@@ -66,17 +66,18 @@
                                 @php
                                     $latest = $sensor->data->last();
 
-                                    // Floors keep the bars from exaggerating trivial sensor
-                                    // noise (e.g. a 1% humidity blip) into a full-height swing.
+                                    // Bars use a fixed absolute scale (not the window's own min/max) so a
+                                    // reading's height reflects its real value, e.g. 50°C/50% is half height.
+                                    $tempScaleMin = -50;
+                                    $tempScaleMax = 50;
+
                                     $temps = $sensor->data->pluck('temperature');
                                     $minTemp = $temps->min();
                                     $maxTemp = $temps->max();
-                                    $tempRange = max($maxTemp - $minTemp, 2.0);
 
                                     $hums = $sensor->data->pluck('humidity');
                                     $minHum = $hums->min();
                                     $maxHum = $hums->max();
-                                    $humRange = max($maxHum - $minHum, 10.0);
 
                                     $tempColor = $latest->temperature >= 28 ? 'text-red-500' : ($latest->temperature <= 15 ? 'text-blue-500' : 'text-gray-900');
                                     $batteryTextColor = $latest->battery <= 20 ? 'text-red-500' : ($latest->battery <= 50 ? 'text-yellow-500' : 'text-green-600');
@@ -106,7 +107,7 @@
                                     </div>
                                     <div class="flex items-end gap-px h-24">
                                         @foreach ($sensor->data as $point)
-                                            @php $h = max((($point->temperature - $minTemp) / $tempRange) * 100, 8); @endphp
+                                            @php $h = min(max((($point->temperature - $tempScaleMin) / ($tempScaleMax - $tempScaleMin)) * 100, 2), 100); @endphp
                                             <div class="flex-1 bg-indigo-300 hover:bg-indigo-500 rounded-t-sm transition-colors"
                                                  style="height: {{ $h }}%"
                                                  title="{{ number_format($point->temperature, 1) }}° at {{ $point->created_at->format('H:i') }}">
@@ -123,7 +124,7 @@
                                     </div>
                                     <div class="flex items-end gap-px h-24">
                                         @foreach ($sensor->data as $point)
-                                            @php $h = max((($point->humidity - $minHum) / $humRange) * 100, 8); @endphp
+                                            @php $h = min(max($point->humidity, 2), 100); @endphp
                                             <div class="flex-1 bg-blue-300 hover:bg-blue-500 rounded-t-sm transition-colors"
                                                  style="height: {{ $h }}%"
                                                  title="{{ number_format($point->humidity, 0) }}% at {{ $point->created_at->format('H:i') }}">
