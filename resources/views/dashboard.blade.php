@@ -102,7 +102,7 @@
                                         <span class="font-medium text-gray-600">Temperature</span>
                                         <span>{{ number_format($minTemp, 1) }}° – {{ number_format($maxTemp, 1) }}°</span>
                                     </div>
-                                    <div class="flex items-end gap-px h-12">
+                                    <div class="flex items-end gap-px h-24">
                                         @foreach ($sensor->data as $point)
                                             @php $h = max((($point->temperature - $minTemp) / $tempRange) * 100, 8); @endphp
                                             <div class="flex-1 bg-indigo-300 hover:bg-indigo-500 rounded-t-sm transition-colors"
@@ -119,7 +119,7 @@
                                         <span class="font-medium text-gray-600">Humidity</span>
                                         <span>{{ number_format($minHum, 0) }}% – {{ number_format($maxHum, 0) }}%</span>
                                     </div>
-                                    <div class="flex items-end gap-px h-12">
+                                    <div class="flex items-end gap-px h-24">
                                         @foreach ($sensor->data as $point)
                                             @php $h = max((($point->humidity - $minHum) / $humRange) * 100, 8); @endphp
                                             <div class="flex-1 bg-blue-300 hover:bg-blue-500 rounded-t-sm transition-colors"
