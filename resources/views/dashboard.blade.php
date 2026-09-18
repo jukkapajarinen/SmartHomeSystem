@@ -77,7 +77,6 @@
                                     $humRange = max($maxHum - $minHum, 0.1);
 
                                     $tempColor = $latest->temperature >= 28 ? 'text-red-500' : ($latest->temperature <= 15 ? 'text-blue-500' : 'text-gray-900');
-                                    $batteryColor = $latest->battery <= 20 ? 'bg-red-500' : ($latest->battery <= 50 ? 'bg-yellow-400' : 'bg-green-500');
                                     $batteryTextColor = $latest->battery <= 20 ? 'text-red-500' : ($latest->battery <= 50 ? 'text-yellow-500' : 'text-green-600');
                                 @endphp
 
@@ -94,13 +93,6 @@
                                     <div class="rounded-lg bg-gray-50 p-3 text-center">
                                         <div class="text-2xl font-bold {{ $batteryTextColor }}">{{ $latest->battery }}%</div>
                                         <div class="text-xs text-gray-500 mt-1">Battery</div>
-                                    </div>
-                                </div>
-
-                                <!-- Battery level -->
-                                <div class="mb-5">
-                                    <div class="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                                        <div class="h-full rounded-full {{ $batteryColor }}" style="width: {{ $latest->battery }}%"></div>
                                     </div>
                                 </div>
 
